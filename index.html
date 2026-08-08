@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Меняющийся URL</title>
+    <title>Меняющийся URL (каждую миллисекунду)</title>
 </head>
 <body>
-    <h1>URL меняется каждую секунду</h1>
+    <h1>URL меняется каждую миллисекунду ⚡</h1>
     <p>Текущий путь: <span id="pathDisplay">/</span></p>
+    <p style="color: gray; font-size: 14px;">Обновлений в секунду: 1000</p>
 
     <script>
-        // Функция генерации случайной строки (буквы и цифры)
+        // Функция генерации случайной строки с буквами, цифрами и символами
         function generateRandomPath(length = 8) {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            // Добавил часто используемые символы: тире, подчёркивание, точку
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789-_.';
             let result = '';
             for (let i = 0; i < length; i++) {
                 result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -20,20 +22,21 @@
 
         // Функция обновления URL
         function updateUrl() {
-            // Генерируем случайный путь
-            const randomPath = generateRandomPath(6); // например: "adawdkal"
+            // Генерируем случайный путь (длина от 5 до 10 символов для разнообразия)
+            const length = Math.floor(Math.random() * 6) + 5; // от 5 до 10
+            const randomPath = generateRandomPath(length);
             
             // Меняем URL без перезагрузки страницы
             window.history.pushState({}, '', '/' + randomPath);
             
-            // Обновляем отображение на странице (опционально)
+            // Обновляем отображение на странице
             document.getElementById('pathDisplay').textContent = '/' + randomPath;
         }
 
-        // Меняем URL каждую секунду
-        setInterval(updateUrl, 1000);
+        // Меняем URL каждую миллисекунду (1000 мс = 1 секунда, 1 мс = 0.001 секунды)
+        setInterval(updateUrl, 1);
         
-        // Чтобы при нажатии "Назад" не ломалось, добавляем обработчик
+        // Обработчик для кнопки "Назад"
         window.addEventListener('popstate', function() {
             document.getElementById('pathDisplay').textContent = window.location.pathname;
         });
