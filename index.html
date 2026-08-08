@@ -1,50 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" href="globals.css">
-  <link rel="stylesheet" href="style.css">
+    <title>Меняющийся URL</title>
 </head>
 <body>
-  <div class="macbook-air" data-model-id="28:7">
-    
-    <header class="top-bar">
-      <div class="logo-group">
-        <img 
-          class="element" 
-          src="https://barsik.org/Logo.png"
-          alt="Logo" 
-        />
-        <span class="text-wrapper-5">Barsik</span>
-      </div>
-      <nav class="nav">
-        <span class="text-wrapper">Products</span>
-        <span class="div">Support</span>
-        <span class="text-wrapper-2">Terms</span>
-      </nav>
-    </header>
+    <h1>URL меняется каждую секунду</h1>
+    <p>Текущий путь: <span id="pathDisplay">/</span></p>
 
-    <div class="main-heading">
-      <span class="highlight-box">
-        <span class="text-wrapper-3">Fast</span>
-      </span>
-      <span class="text-wrapper-4">reliable, and secure</span>
-    </div>
+    <script>
+        // Функция генерации случайной строки (буквы и цифры)
+        function generateRandomPath(length = 8) {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
 
-    <h2 class="text-wrapper-6">realtime database</h2>
+        // Функция обновления URL
+        function updateUrl() {
+            // Генерируем случайный путь
+            const randomPath = generateRandomPath(6); // например: "adawdkal"
+            
+            // Меняем URL без перезагрузки страницы
+            window.history.pushState({}, '', '/' + randomPath);
+            
+            // Обновляем отображение на странице (опционально)
+            document.getElementById('pathDisplay').textContent = '/' + randomPath;
+        }
 
-    <div class="div-wrapper">
-      <p class="p">
-        A powerful cloud key-value store for your projects. Change and fetch text or JSON values via
-        <span class="text-wrapper-8">lightning-fast API in just a few lines of code.</span>
-      </p>
-    </div>
-
-    <a href="https://login.barsik.org" class="cta-button">
-      <span class="text-wrapper-7">Try now</span>
-    </a>
-
-  </div>
+        // Меняем URL каждую секунду
+        setInterval(updateUrl, 1000);
+        
+        // Чтобы при нажатии "Назад" не ломалось, добавляем обработчик
+        window.addEventListener('popstate', function() {
+            document.getElementById('pathDisplay').textContent = window.location.pathname;
+        });
+    </script>
 </body>
 </html>
