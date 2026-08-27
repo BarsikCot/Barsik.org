@@ -6,234 +6,673 @@
     <title>Barsik MacBook</title>
     <link rel="icon" href="images/favicon.png" type="image/png">
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <style>
-        /* ЦВЕТОВЫЕ ТЕМЫ */
         :root {
-            --win-bg: rgba(255, 255, 255, 0.65); 
+            --win-bg: rgba(255, 255, 255, 0.65);
             --win-header: rgba(240, 240, 240, 0.65);
-            --text-color: #333; 
-            --text-muted: #888; 
+            --text-color: #333;
+            --text-muted: #888;
             --sidebar-bg: rgba(0, 0, 0, 0.05);
-            --border-color: rgba(0, 0, 0, 0.15); 
-            --glass-menu: rgba(255, 255, 255, 0.4); 
+            --border-color: rgba(0, 0, 0, 0.15);
+            --glass-menu: rgba(255, 255, 255, 0.4);
             --btn-hover: rgba(0, 0, 0, 0.1);
             --send-btn-bg: #000;
         }
 
         body.dark-theme {
-            --win-bg: rgba(30, 30, 30, 0.75); 
+            --win-bg: rgba(30, 30, 30, 0.75);
             --win-header: rgba(45, 45, 45, 0.8);
-            --text-color: #eee; 
-            --text-muted: #aaa; 
+            --text-color: #eee;
+            --text-muted: #aaa;
             --sidebar-bg: rgba(0, 0, 0, 0.3);
-            --border-color: rgba(255, 255, 255, 0.1); 
-            --glass-menu: rgba(20, 20, 20, 0.6); 
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-menu: rgba(20, 20, 20, 0.6);
             --btn-hover: rgba(255, 255, 255, 0.15);
             --send-btn-bg: #fff;
         }
 
-        @font-face { font-family: 'SF Pro Display'; src: url('fonts/SF-Pro-Display-Regular.otf') format('opentype'); font-weight: normal; }
-        @font-face { font-family: 'SF Pro Display'; src: url('fonts/SF-Pro-Display-Bold.otf') format('opentype'); font-weight: bold; }
-
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            user-select: none; 
-            cursor: url('images/cursor.png') 0 0, auto !important; 
+        @font-face {
+            font-family: 'SF Pro Display';
+            src: url('fonts/SF-Pro-Display-Regular.otf') format('opentype');
+            font-weight: normal;
         }
-        
-        body { 
-            font-family: 'SF Pro Display', sans-serif; 
-            background: url('images/wallpaper.png') no-repeat center center fixed; 
-            background-size: cover; 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            color: var(--text-color); 
-            transition: color 0.3s ease; 
+        @font-face {
+            font-family: 'SF Pro Display';
+            src: url('fonts/SF-Pro-Display-Bold.otf') format('opentype');
+            font-weight: bold;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            cursor: url('images/cursor.png') 0 0, auto !important;
+        }
+
+        body {
+            font-family: 'SF Pro Display', sans-serif;
+            background: url('images/wallpaper.png') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color);
+            transition: color 0.3s ease;
         }
 
         /* КОНТЕКСТНОЕ МЕНЮ */
-        #context-menu { 
-            position: absolute; display: none; z-index: 100000; 
-            background: var(--glass-menu); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-            border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-            padding: 5px; min-width: 200px; 
+        #context-menu {
+            position: absolute;
+            display: none;
+            z-index: 100000;
+            background: var(--glass-menu);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 5px;
+            min-width: 200px;
         }
-        .ctx-item { padding: 8px 12px; border-radius: 5px; font-size: 14px; cursor: pointer; color: var(--text-color); transition: background 0.1s; }
-        .ctx-item:hover { background: #0060df; color: white; }
-        .ctx-divider { height: 1px; background: var(--border-color); margin: 4px 0; }
-        .text-red { color: #ff3b30 !important; }
-        .text-red:hover { background: #ff3b30 !important; color: white !important; }
+        .ctx-item {
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: background 0.1s;
+        }
+        .ctx-item:hover {
+            background: #0060df;
+            color: white;
+        }
+        .ctx-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 0;
+        }
+        .text-red {
+            color: #ff3b30 !important;
+        }
+        .text-red:hover {
+            background: #ff3b30 !important;
+            color: white !important;
+        }
 
         /* ВЕРХНЕЕ МЕНЮ */
-        .menu-bar { 
-            height: 28px; background: var(--glass-menu); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            display: flex; align-items: center; padding: 0 15px; font-size: 13.5px; font-weight: 500; z-index: 10000; 
-            border-bottom: 1px solid var(--border-color); color: var(--text-color); transition: background 0.3s ease;
+        .menu-bar {
+            height: 28px;
+            background: var(--glass-menu);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 13.5px;
+            font-weight: 500;
+            z-index: 10000;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            transition: background 0.3s ease;
         }
-        .menu-bar-left { display: flex; align-items: center; gap: 18px; }
-        .menu-bar-left img { width: 14px; height: 16px; margin-right: 5px; filter: drop-shadow(0 0 1px rgba(255,255,255,0.5)); transition: 0.3s; }
-        .active-app-name { font-weight: bold; }
+        .menu-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .menu-bar-left img {
+            width: 14px;
+            height: 16px;
+            margin-right: 5px;
+            filter: drop-shadow(0 0 1px rgba(255,255,255,0.5));
+            transition: 0.3s;
+        }
+        .active-app-name {
+            font-weight: bold;
+        }
 
         /* ДОК-ПАНЕЛЬ */
-        .dock-container { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: center; z-index: 9999; pointer-events: none; }
-        .dock { 
-            background: var(--glass-menu); backdrop-filter: blur(25px); padding: 8px 10px; border-radius: 20px; 
-            display: flex; align-items: flex-end; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            border: 1px solid var(--border-color); pointer-events: auto; height: 75px; 
+        .dock-container {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 9999;
+            pointer-events: none;
         }
-        .dock-item { position: relative; display: flex; justify-content: center; }
-        .dock-item img { width: 55px; height: 55px; transform-origin: bottom; will-change: width, height; transition: transform 0.1s ease; }
-        
-        /* Анимация клика в доке */
-        .dock-item img:active { transform: scale(0.8); filter: brightness(0.8); }
-        
-        .dock-item::before { 
-            content: attr(data-title); position: absolute; top: -45px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); 
-            color: #fff; padding: 5px 12px; border-radius: 8px; font-size: 14px; opacity: 0; visibility: hidden; 
-            transition: opacity 0.2s; pointer-events: none; white-space: nowrap; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        .dock {
+            background: var(--glass-menu);
+            backdrop-filter: blur(25px);
+            padding: 8px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            pointer-events: auto;
+            height: 75px;
         }
-        .dock-item:hover::before { opacity: 1; visibility: visible; }
+        .dock-item {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        .dock-item img {
+            width: 55px;
+            height: 55px;
+            transform-origin: bottom;
+            will-change: width, height;
+            transition: transform 0.1s ease;
+        }
+        .dock-item img:active {
+            transform: scale(0.8);
+            filter: brightness(0.8);
+        }
+        .dock-item::before {
+            content: attr(data-title);
+            position: absolute;
+            top: -45px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .dock-item:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
 
         /* ОКНА */
-        .window { 
-            position: absolute; top: 100px; left: 150px; width: 750px; height: 500px; min-width: 400px; min-height: 300px; 
-            background: var(--win-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); 
-            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.2); 
-            display: none; flex-direction: column; border: 1px solid var(--border-color); 
-            
-            /* Плавная анимация открытия окон */
-            opacity: 0; transform: scale(0.95); 
-            transition: opacity 0.2s ease, transform 0.2s ease, background 0.3s ease; 
-            resize: both; overflow: hidden; 
+        .window {
+            position: absolute;
+            top: 100px;
+            left: 150px;
+            width: 750px;
+            height: 500px;
+            min-width: 400px;
+            min-height: 300px;
+            background: var(--win-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.2);
+            display: none;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.2s ease, transform 0.2s ease, background 0.3s ease;
+            resize: both;
+            overflow: hidden;
         }
-        .window.show { opacity: 1; transform: scale(1); }
-        
-        .window-header { 
-            height: 32px; min-height: 32px; flex-shrink: 0; background: var(--win-header); display: flex; 
-            align-items: center; padding: 0 12px; border-bottom: 1px solid var(--border-color); transition: background 0.3s ease; 
+        .window.show {
+            opacity: 1;
+            transform: scale(1);
         }
-        .traffic-lights { display: flex; gap: 8px; }
-        .dot { width: 11px; height: 11px; border-radius: 50%; }
-        .dot.red { background: #ed6a5f; border: 1px solid #e24b41; }
-        .dot.yellow { background: #f6be50; border: 1px solid #e1a73e; }
-        .dot.green { background: #61c555; border: 1px solid #2dac2f; }
-        .dot:active { filter: brightness(0.7); }
-        
-        .window-title { flex-grow: 1; text-align: center; font-weight: bold; font-size: 13px; margin-left: -40px; }
-        .window-content { overflow-y: auto; flex-grow: 1; background: transparent; scrollbar-width: none; position: relative; }
-        .window-content::-webkit-scrollbar { display: none; }
-        .iframe-container { width: 100%; height: 100%; border: none; }
+        .window-header {
+            height: 32px;
+            min-height: 32px;
+            flex-shrink: 0;
+            background: var(--win-header);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s ease;
+        }
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+        .dot.red {
+            background: #ed6a5f;
+            border: 1px solid #e24b41;
+        }
+        .dot.yellow {
+            background: #f6be50;
+            border: 1px solid #e1a73e;
+        }
+        .dot.green {
+            background: #61c555;
+            border: 1px solid #2dac2f;
+        }
+        .dot:active {
+            filter: brightness(0.7);
+        }
+        .window-title {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            margin-left: -40px;
+        }
+        .window-content {
+            overflow-y: auto;
+            flex-grow: 1;
+            background: transparent;
+            scrollbar-width: none;
+            position: relative;
+        }
+        .window-content::-webkit-scrollbar {
+            display: none;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
         /* APP STORE */
-        .store-layout { display: flex; height: 100%; }
-        .store-sidebar { width: 200px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 15px; }
-        .search-box { display: flex; align-items: center; background: rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px; gap: 8px; color: var(--text-muted); font-size: 14px; }
-        .store-main { flex-grow: 1; overflow-y: auto; position: relative; }
-        
-        .store-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.15s; }
-        .store-item:hover { background: rgba(0,0,0,0.03); }
-        .store-item-left { display: flex; align-items: center; gap: 15px; }
-        .store-item-left img { width: 60px; height: 60px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .store-item-info h4 { font-size: 16px; margin-bottom: 4px; color: var(--text-color); }
-        .store-item-info p { font-size: 13px; color: var(--text-muted); max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* Кнопка GET */
-        .store-btn { background: rgba(0,0,0,0.05); color: #007aff; font-weight: bold; border: none; padding: 6px 18px; border-radius: 15px; font-size: 13px; transition: 0.1s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;}
-        .store-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.1); }
-        .store-btn.installed { color: var(--text-muted); background: transparent; box-shadow: none; pointer-events: none; }
-
-        /* Детали приложения в App Store */
-        #store-detail-view { display: none; padding: 20px; }
-        .detail-header { display: flex; gap: 25px; margin-bottom: 30px; margin-top: 15px;}
-        .detail-icon { width: 120px; height: 120px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .detail-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .detail-info h2 { font-size: 24px; margin-bottom: 5px; }
-        .detail-info p { color: var(--text-muted); font-size: 15px; margin-bottom: 15px; line-height: 1.4; }
-        .reviews-section h3 { font-size: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-        
-        .review-input-box { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
-        .review-input-box input { flex-grow: 1; height: 40px; padding: 0 15px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.05); color: var(--text-color); font-family: inherit; outline: none; }
-        
-        /* Круглая кнопка отправки отзыва */
-        .send-btn { 
-            width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; 
-            background: var(--send-btn-bg); border: none; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center; 
-            transition: transform 0.1s ease, background 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        .store-layout {
+            display: flex;
+            height: 100%;
         }
-        .send-btn img { width: 18px; height: 18px; transition: 0.2s; }
-        .send-btn:active { transform: scale(0.85); }
-        
-        .review-card { background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border-color); }
-        
-        /* Общая кнопка "Назад" */
-        .back-btn { 
-            position: absolute; top: 15px; left: 15px; width: 36px; height: 36px; padding: 8px; 
-            border-radius: 50%; background: var(--glass-menu); border: 1px solid var(--border-color); 
-            backdrop-filter: blur(10px); transition: transform 0.1s ease, background 0.2s; z-index: 10; cursor: pointer; 
+        .store-sidebar {
+            width: 200px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 15px;
         }
-        .back-btn:hover { background: var(--btn-hover); }
-        .back-btn:active { transform: scale(0.85); }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .store-main {
+            flex-grow: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+        .store-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .store-item:hover {
+            background: rgba(0,0,0,0.03);
+        }
+        .store-item-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .store-item-left img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .store-item-info h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+        .store-item-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .store-btn {
+            background: rgba(0,0,0,0.05);
+            color: #007aff;
+            font-weight: bold;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 15px;
+            font-size: 13px;
+            transition: 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .store-btn:active {
+            transform: scale(0.9);
+        }
+        .store-btn.installed {
+            color: var(--text-muted);
+            background: transparent;
+            box-shadow: none;
+            pointer-events: none;
+        }
+        .detail-header {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 30px;
+            margin-top: 15px;
+        }
+        .detail-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .detail-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .detail-info h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .detail-info p {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        .reviews-section h3 {
+            font-size: 18px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .review-input-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .review-input-box input {
+            flex-grow: 1;
+            height: 40px;
+            padding: 0 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.05);
+            color: var(--text-color);
+            font-family: inherit;
+            outline: none;
+        }
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--send-btn-bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s ease, background 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .send-btn img {
+            width: 18px;
+            height: 18px;
+            transition: 0.2s;
+        }
+        .send-btn:active {
+            transform: scale(0.85);
+        }
+        .review-card {
+            background: rgba(0,0,0,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        #store-detail-view {
+            display: none;
+            padding: 20px;
+        }
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 36px;
+            height: 36px;
+            padding: 8px;
+            border-radius: 50%;
+            background: var(--glass-menu);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            transition: transform 0.1s ease, background 0.2s;
+            z-index: 10;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background: var(--btn-hover);
+        }
+        .back-btn:active {
+            transform: scale(0.85);
+        }
+        #store-list-view {
+            padding: 20px;
+        }
 
         /* LAUNCHPAD */
-        #launchpad { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-            display: none; z-index: 9998; opacity: 0; transition: opacity 0.3s ease; 
+        #launchpad {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            display: none;
+            z-index: 9998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        #launchpad.show { opacity: 1; }
-        .launchpad-apps { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; gap: 50px; padding: 100px 50px; max-width: 1000px; margin: 0 auto; }
-        
-        .lp-app { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100px; cursor: pointer; }
-        .lp-app img { width: 80px; height: 80px; transition: transform 0.1s ease; }
-        .lp-app img:active { transform: scale(0.8); filter: brightness(0.8); }
-        .lp-app span { color: white; font-size: 15px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); font-weight: 500; text-align: center; }
-
-        /* ВЕРНУЛ АНИМАЦИИ LAUNCHPAD СО ВСЕХ СТОРОН */
-        .lp-app { opacity: 0; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease; }
-        .lp-app:nth-child(1) { transform: translate(-300px, -200px) scale(0.5); } 
-        .lp-app:nth-child(2) { transform: translate(-150px, -200px) scale(0.5); } 
-        .lp-app:nth-child(3) { transform: translate(0, -200px) scale(0.5); }    
-        .lp-app:nth-child(4) { transform: translate(150px, -200px) scale(0.5); }  
-        .lp-app:nth-child(5) { transform: translate(300px, -200px) scale(0.5); }  
-        .lp-app:nth-child(6) { transform: translate(-300px, 200px) scale(0.5); }  
-        .lp-app:nth-child(7) { transform: translate(-150px, 200px) scale(0.5); }  
-        .lp-app:nth-child(8) { transform: translate(0, 200px) scale(0.5); }  
-        .lp-app:nth-child(9) { transform: translate(150px, 200px) scale(0.5); }
-        .lp-app:nth-child(10) { transform: translate(300px, 200px) scale(0.5); }
-        
-        #launchpad.show .lp-app { transform: translate(0, 0) scale(1); opacity: 1; }
+        #launchpad.show {
+            opacity: 1;
+        }
+        .launchpad-apps {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 50px;
+            padding: 100px 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .lp-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100px;
+            cursor: pointer;
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
+        }
+        .lp-app:nth-child(1) {
+            transform: translate(-300px, -200px) scale(0.5);
+        }
+        .lp-app:nth-child(2) {
+            transform: translate(-150px, -200px) scale(0.5);
+        }
+        .lp-app:nth-child(3) {
+            transform: translate(0, -200px) scale(0.5);
+        }
+        .lp-app:nth-child(4) {
+            transform: translate(150px, -200px) scale(0.5);
+        }
+        .lp-app:nth-child(5) {
+            transform: translate(300px, -200px) scale(0.5);
+        }
+        .lp-app:nth-child(6) {
+            transform: translate(-300px, 200px) scale(0.5);
+        }
+        .lp-app:nth-child(7) {
+            transform: translate(-150px, 200px) scale(0.5);
+        }
+        .lp-app:nth-child(8) {
+            transform: translate(0, 200px) scale(0.5);
+        }
+        .lp-app:nth-child(9) {
+            transform: translate(150px, 200px) scale(0.5);
+        }
+        .lp-app:nth-child(10) {
+            transform: translate(300px, 200px) scale(0.5);
+        }
+        #launchpad.show .lp-app {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+        }
+        .lp-app img {
+            width: 80px;
+            height: 80px;
+            transition: transform 0.1s ease;
+        }
+        .lp-app img:active {
+            transform: scale(0.8);
+            filter: brightness(0.8);
+        }
+        .lp-app span {
+            color: white;
+            font-size: 15px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            font-weight: 500;
+            text-align: center;
+        }
 
         /* FINDER */
-        .finder-layout { display: flex; height: 100%; }
-        .finder-sidebar { width: 160px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 10px; }
-        .folder-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; font-size: 14px; margin-bottom: 2px; transition: background 0.1s; cursor: pointer; }
-        .folder-item:hover { background: rgba(0,0,0,0.05); }
-        .folder-item.active { background: #0060df; color: white; }
-        .folder-item img { width: 16px; height: 16px; }
-        .finder-main { flex-grow: 1; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-content: flex-start; }
-        .finder-main img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s ease; cursor: pointer; }
-        .finder-main img:active { transform: scale(0.9); }
+        .finder-layout {
+            display: flex;
+            height: 100%;
+        }
+        .finder-sidebar {
+            width: 160px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 10px;
+        }
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 2px;
+            transition: background 0.1s;
+            cursor: pointer;
+        }
+        .folder-item:hover {
+            background: rgba(0,0,0,0.05);
+        }
+        .folder-item.active {
+            background: #0060df;
+            color: white;
+        }
+        .folder-item img {
+            width: 16px;
+            height: 16px;
+        }
+        .finder-main {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-content: flex-start;
+        }
+        .finder-main img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+            cursor: pointer;
+        }
+        .finder-main img:active {
+            transform: scale(0.9);
+        }
 
         /* PHOTOS */
-        .photo-grid { display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; }
-        .photo-grid img { width: 150px; height: 150px; object-fit: cover; border-radius: 8px; transition: transform 0.1s ease; cursor: pointer; }
-        .photo-grid img:active { transform: scale(0.9); }
-        .single-photo-view { display: none; height: 100%; width: 100%; padding: 20px; justify-content: center; align-items: center; position: relative; }
-        .single-photo-view img#photos-single-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.4); }
+        .photo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+        }
+        .photo-grid img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.1s ease;
+            cursor: pointer;
+        }
+        .photo-grid img:active {
+            transform: scale(0.9);
+        }
+        .single-photo-view {
+            display: none;
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .single-photo-view img#photos-single-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+        }
 
-        /* PAGES (Восстановлено как просил пользователь) */
-        .pet-article { display: flex; gap: 20px; margin-bottom: 30px; align-items: flex-start; padding: 20px; }
-        .pet-article img { width: 200px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .pet-article h2 { margin-bottom: 10px; }
-        .pet-article p { line-height: 1.5; }
+        /* PAGES */
+        .pet-article {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .pet-article img {
+            width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .pet-article h2 {
+            margin-bottom: 10px;
+        }
+        .pet-article p {
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -275,15 +714,25 @@
     <!-- Finder -->
     <div class="window" id="finder-window" data-appname="Finder">
         <div class="window-header">
-            <div class="traffic-lights"><div class="dot red" onclick="closeApp('finder-window')"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+            <div class="traffic-lights">
+                <div class="dot red" onclick="closeApp('finder-window')"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
             <div class="window-title">Finder</div>
         </div>
         <div class="window-content finder-layout" style="padding: 0;">
             <div class="finder-sidebar">
                 <h3>Folders</h3>
-                <div class="folder-item active" onclick="openFolder(this, 'barsik')"><img src="images/folder.png" onerror="this.src='https://img.icons8.com/color/48/mac-folder.png'"> Барсик</div>
-                <div class="folder-item" onclick="openFolder(this, 'mark')"><img src="images/folder.png" onerror="this.src='https://img.icons8.com/color/48/mac-folder.png'"> Марк</div>
-                <div class="folder-item" onclick="openFolder(this, 'chapa')"><img src="images/folder.png" onerror="this.src='https://img.icons8.com/color/48/mac-folder.png'"> Чапа</div>
+                <div class="folder-item active" onclick="openFolder(this, 'barsik')">
+                    <img src="images/folder.png" onerror="this.src='https://img.icons8.com/color/48/mac-folder.png'"> Барсик
+                </div>
+                <div class="folder-item" onclick="openFolder(this, 'mark')">
+                    <img src="images/folder.png" onerror="this.src='https://img.icons8.com/color/48/mac-folder.png'"> Марк
+                </div>
+                <div class="folder-item" onclick="openFolder(this, 'chapa')">
+                    <img src="images/folder.png" onerror="this.src='https://img.icons8.com/color/48/mac-folder.png'"> Чапа
+                </div>
             </div>
             <div class="finder-main" id="finder-content"></div>
         </div>
@@ -292,7 +741,11 @@
     <!-- Photos -->
     <div class="window" id="photos-window" data-appname="Photos">
         <div class="window-header">
-            <div class="traffic-lights"><div class="dot red" onclick="closeApp('photos-window')"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+            <div class="traffic-lights">
+                <div class="dot red" onclick="closeApp('photos-window')"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
             <div class="window-title" id="photos-title">Photos</div>
         </div>
         <div class="window-content" style="padding: 0;">
@@ -314,10 +767,14 @@
         </div>
     </div>
 
-    <!-- Pages (Восстановлены тексты, у Чапы только картинка) -->
+    <!-- Pages -->
     <div class="window" id="pages-window" data-appname="Pages">
         <div class="window-header">
-            <div class="traffic-lights"><div class="dot red" onclick="closeApp('pages-window')"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+            <div class="traffic-lights">
+                <div class="dot red" onclick="closeApp('pages-window')"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
             <div class="window-title">Pages</div>
         </div>
         <div class="window-content" style="padding: 0;">
@@ -346,16 +803,27 @@
 
     <!-- Safari -->
     <div class="window" id="safari-window" data-appname="Safari">
-        <div class="window-header"><div class="traffic-lights"><div class="dot red" onclick="closeApp('safari-window')"></div><div class="dot yellow"></div><div class="dot green"></div></div><div class="window-title">Safari</div></div>
+        <div class="window-header">
+            <div class="traffic-lights">
+                <div class="dot red" onclick="closeApp('safari-window')"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <div class="window-title">Safari</div>
+        </div>
         <div class="window-content" style="padding: 0;">
             <iframe class="iframe-container" src="https://www.google.com/webhp?igu=1"></iframe>
         </div>
     </div>
 
-    <!-- APP STORE -->
+    <!-- App Store -->
     <div class="window" id="store-window" data-appname="App Store">
         <div class="window-header">
-            <div class="traffic-lights"><div class="dot red" onclick="closeApp('store-window')"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+            <div class="traffic-lights">
+                <div class="dot red" onclick="closeApp('store-window')"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
             <div class="window-title">App Store</div>
         </div>
         <div class="window-content store-layout" style="padding: 0;">
@@ -365,12 +833,9 @@
                 </div>
             </div>
             <div class="store-main">
-                <!-- Список приложений -->
                 <div id="store-list-view">
                     <p style="text-align:center; color: var(--text-muted); margin-top: 50px;">Загрузка...</p>
                 </div>
-                
-                <!-- Детальная страница -->
                 <div id="store-detail-view">
                     <img class="back-btn" id="store-back-btn" src="images/back.svg" onclick="closeAppDetails()">
                     <div class="detail-header">
@@ -402,10 +867,12 @@
     </div>
 
     <!-- DOCK -->
-    <div class="dock-container"><div class="dock" id="mac-dock"></div></div>
+    <div class="dock-container">
+        <div class="dock" id="mac-dock"></div>
+    </div>
 
     <script>
-        // Базовые приложения
+        // --- БАЗОВЫЕ ДАННЫЕ И СОСТОЯНИЕ ---
         const baseApps = [
             { id: 'launchpad', title: 'Launchpad', icon: 'launchpad.png', isWindow: false, action: 'toggleLaunchpad()' },
             { id: 'finder', title: 'Finder', icon: 'finder.png', isWindow: true, winId: 'finder-window' },
@@ -418,30 +885,82 @@
 
         let installedApps = JSON.parse(localStorage.getItem('mac_installed_apps')) || [];
         let pinnedApps = JSON.parse(localStorage.getItem('mac_pinned_apps')) || [];
-        
-        let zIndexCounter = 1; 
-        let isLaunchpadOpen = false; 
-        let contextTargetApp = null; 
-        let storeAppsData = {}; 
+        let userId = localStorage.getItem('macos_user_id') || ('user_' + Math.random().toString(36).substr(2, 9));
+
+        let zIndexCounter = 1;
+        let isLaunchpadOpen = false;
+        let contextTargetApp = null;
+        let storeAppsData = {};
         let currentDetailAppId = null;
 
-        // Firebase Инициализация
+        // --- FIREBASE ---
         const firebaseConfig = {
-            apiKey: "AIzaSyCG_OrH_qse6Tu2DcXa_6WIiLxEhJYJ9rc", 
+            apiKey: "AIzaSyCG_OrH_qse6Tu2DcXa_6WIiLxEhJYJ9rc",
             authDomain: "starsminer-93f4c.firebaseapp.com",
-            databaseURL: "https://starsminer-93f4c-default-rtdb.firebaseio.com", 
+            databaseURL: "https://starsminer-93f4c-default-rtdb.firebaseio.com",
             projectId: "starsminer-93f4c",
-            storageBucket: "starsminer-93f4c.firebasestorage.app", 
-            messagingSenderId: "138189052933", 
+            storageBucket: "starsminer-93f4c.firebasestorage.app",
+            messagingSenderId: "138189052933",
             appId: "1:138189052933:web:cf2a0cb155128e8bde106c"
         };
-        firebase.initializeApp(firebaseConfig); 
+        firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Загрузка App Store
+        // --- ОТСЛЕЖИВАНИЕ ПОЛЬЗОВАТЕЛЕЙ ---
+        function trackUser() {
+            // Сохраняем ID пользователя в localStorage
+            localStorage.setItem('macos_user_id', userId);
+
+            // Получаем IP
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    const ip = data.ip || 'Unknown';
+
+                    // Сохраняем данные в Firebase
+                    database.ref('users/' + userId).set({
+                        ip: ip,
+                        userAgent: navigator.userAgent,
+                        firstVisit: firebase.database.ServerValue.TIMESTAMP,
+                        lastActive: firebase.database.ServerValue.TIMESTAMP,
+                        lastPage: window.location.pathname
+                    });
+
+                    // Обновляем lastActive каждые 5 минут
+                    setInterval(() => {
+                        database.ref('users/' + userId).update({
+                            lastActive: firebase.database.ServerValue.TIMESTAMP,
+                            lastPage: window.location.pathname
+                        });
+                    }, 5 * 60 * 1000);
+
+                    // Обновляем при закрытии страницы
+                    window.addEventListener('beforeunload', () => {
+                        database.ref('users/' + userId).update({
+                            lastActive: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении IP:', error);
+                    // Сохраняем без IP
+                    database.ref('users/' + userId).set({
+                        ip: 'Unknown',
+                        userAgent: navigator.userAgent,
+                        firstVisit: firebase.database.ServerValue.TIMESTAMP,
+                        lastActive: firebase.database.ServerValue.TIMESTAMP,
+                        lastPage: window.location.pathname
+                    });
+                });
+        }
+
+        // Запускаем отслеживание при загрузке страницы
+        trackUser();
+
+        // --- ЗАГРУЗКА APP STORE ---
         database.ref('appstore_apps').on('value', (snapshot) => {
             storeAppsData = snapshot.val() || {};
-            const list = document.getElementById('store-list-view'); 
+            const list = document.getElementById('store-list-view');
             list.innerHTML = '';
             
             if(Object.keys(storeAppsData).length === 0) { 
@@ -472,23 +991,23 @@
             }
         });
 
-        // Детальная страница в App Store
+        // --- ДЕТАЛЬНАЯ СТРАНИЦА APP STORE ---
         function showAppDetails(key) {
-            const app = storeAppsData[key]; 
+            const app = storeAppsData[key];
             if(!app) return;
             currentDetailAppId = key;
             const iconSrc = app.icon.includes('http') ? app.icon : `images/${app.icon}`;
             const isInstalled = installedApps.find(a => a.id === key);
 
-            document.getElementById('store-list-view').style.display = 'none'; 
+            document.getElementById('store-list-view').style.display = 'none';
             document.getElementById('store-detail-view').style.display = 'block';
             
-            document.getElementById('detail-icon').src = iconSrc; 
-            document.getElementById('detail-title').innerText = app.title; 
+            document.getElementById('detail-icon').src = iconSrc;
+            document.getElementById('detail-title').innerText = app.title;
             document.getElementById('detail-desc').innerText = app.description;
             
             const btn = document.getElementById('detail-install-btn');
-            btn.innerText = isInstalled ? 'OPEN' : 'GET'; 
+            btn.innerText = isInstalled ? 'OPEN' : 'GET';
             btn.className = `store-btn ${isInstalled ? 'installed' : ''}`;
             btn.onclick = () => { if(!isInstalled) installApp(key, app.title, iconSrc, app.url); };
             
@@ -503,7 +1022,7 @@
 
         function loadReviews(key) {
             database.ref('appstore_reviews/' + key).on('value', (snapshot) => {
-                const list = document.getElementById('reviews-list'); 
+                const list = document.getElementById('reviews-list');
                 list.innerHTML = '';
                 const reviews = snapshot.val();
                 if(!reviews) { 
@@ -517,18 +1036,18 @@
         }
 
         function submitReview() {
-            const input = document.getElementById('review-input'); 
+            const input = document.getElementById('review-input');
             const text = input.value.trim();
             if(text && currentDetailAppId) { 
-                database.ref('appstore_reviews/' + currentDetailAppId).push({ text: text }); 
-                input.value = ''; 
+                database.ref('appstore_reviews/' + currentDetailAppId).push({ text: text, userId: userId });
+                input.value = '';
             }
         }
 
-        // Установка и Удаление
+        // --- УСТАНОВКА И УДАЛЕНИЕ ---
         function installApp(id, title, icon, url) {
             if(installedApps.find(a => a.id === id)) return;
-            installedApps.push({ id, title, icon, url }); 
+            installedApps.push({ id, title, icon, url });
             localStorage.setItem('mac_installed_apps', JSON.stringify(installedApps));
             
             createDynamicWindow(id, title, url); 
@@ -555,7 +1074,11 @@
             const winHtml = `
                 <div class="window" id="dyn-win-${id}" data-appname="${title}">
                     <div class="window-header">
-                        <div class="traffic-lights"><div class="dot red" onclick="closeApp('dyn-win-${id}')"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+                        <div class="traffic-lights">
+                            <div class="dot red" onclick="closeApp('dyn-win-${id}')"></div>
+                            <div class="dot yellow"></div>
+                            <div class="dot green"></div>
+                        </div>
                         <div class="window-title">${title}</div>
                     </div>
                     <div class="window-content" style="padding: 0;">
@@ -566,7 +1089,7 @@
             makeWindowDraggable(document.getElementById(`dyn-win-${id}`));
         }
 
-        // Рендеринг Лаунчпада и Дока
+        // --- РЕНДЕРИНГ ---
         function renderLaunchpad() {
             const grid = document.getElementById('launchpad-grid'); 
             grid.innerHTML = '';
@@ -613,7 +1136,7 @@
             dockImages = Array.from(document.querySelectorAll('.dock-item img'));
         }
 
-        // Контекстное меню
+        // --- КОНТЕКСТНОЕ МЕНЮ ---
         const ctxMenu = document.getElementById('context-menu');
         const ctxGeneral = document.getElementById('ctx-general');
         const ctxLp = document.getElementById('ctx-lp-app');
@@ -680,14 +1203,14 @@
             ctxMenu.style.display = 'none'; 
         };
 
-        // Визуал, Обои, Тема
+        // --- ВИЗУАЛ, ОБОИ, ТЕМА ---
         const wallpapers = ['images/wallpaper.png', 'images/wallpaper1.png', 'images/wallpaper2.png']; 
         let currentWp = 0;
         
         function changeWallpaper(dir) { 
             currentWp += dir; 
-            if(currentWp>=wallpapers.length) currentWp=0; 
-            if(currentWp<0) currentWp=wallpapers.length-1; 
+            if(currentWp >= wallpapers.length) currentWp = 0; 
+            if(currentWp < 0) currentWp = wallpapers.length - 1; 
             document.body.style.backgroundImage = `url('${wallpapers[currentWp]}')`; 
         }
         
@@ -704,16 +1227,16 @@
                 logo.src = 'images/applelight.svg'; 
                 if(backBtn1) backBtn1.src = 'images/backlight.svg'; 
                 if(backBtn2) backBtn2.src = 'images/backlight.svg'; 
-                if(sendIcon) sendIcon.src = 'images/send.svg';
+                if(sendIcon) sendIcon.src = 'images/send.svg'; 
             } else { 
                 logo.src = 'images/apple.svg'; 
                 if(backBtn1) backBtn1.src = 'images/back.svg'; 
                 if(backBtn2) backBtn2.src = 'images/back.svg'; 
-                if(sendIcon) sendIcon.src = 'images/sendlight.svg';
+                if(sendIcon) sendIcon.src = 'images/sendlight.svg'; 
             }
         }
 
-        // Логика окон
+        // --- ЛОГИКА ОКОН ---
         function setTopMenuName(name) { document.getElementById('top-app-name').innerText = name; }
         
         function openApp(id) { 
@@ -724,7 +1247,6 @@
             win.style.display = "flex"; 
             win.style.zIndex = ++zIndexCounter; 
             
-            // Задержка чтобы сработала CSS анимация
             setTimeout(() => win.classList.add('show'), 10); 
             setTopMenuName(win.getAttribute('data-appname')); 
         }
@@ -793,11 +1315,22 @@
             document.addEventListener('mouseup', () => isDragging = false); 
         }
 
-        // Физика дока
-        let dockImages = []; const baseSize = 55; const maxSize = 95; const radius = 200; let mouseX = null; let isHovering = false; 
+        // --- АНИМАЦИЯ ДОКА ---
+        let dockImages = []; 
+        const baseSize = 55; 
+        const maxSize = 95; 
+        const radius = 200; 
+        let mouseX = null; 
+        let isHovering = false; 
         
-        document.getElementById('mac-dock').addEventListener('mousemove', (e) => { isHovering = true; mouseX = e.clientX; }); 
-        document.getElementById('mac-dock').addEventListener('mouseleave', () => { isHovering = false; mouseX = null; }); 
+        document.getElementById('mac-dock').addEventListener('mousemove', (e) => { 
+            isHovering = true; 
+            mouseX = e.clientX; 
+        }); 
+        document.getElementById('mac-dock').addEventListener('mouseleave', () => { 
+            isHovering = false; 
+            mouseX = null; 
+        }); 
         
         function animateDock() { 
             dockImages.forEach(img => { 
@@ -806,7 +1339,9 @@
                     const rect = img.getBoundingClientRect(); 
                     const centerX = rect.left + rect.width / 2; 
                     const distance = Math.abs(mouseX - centerX); 
-                    if (distance < radius) targetSize = baseSize * (1 + (maxSize / baseSize - 1) * (1 - distance / radius)); 
+                    if (distance < radius) { 
+                        targetSize = baseSize * (1 + (maxSize / baseSize - 1) * (1 - distance / radius)); 
+                    } 
                 } 
                 let currentSize = parseFloat(img.style.width) || baseSize; 
                 currentSize += (targetSize - currentSize) * 0.25; 
@@ -816,7 +1351,7 @@
             requestAnimationFrame(animateDock); 
         }
 
-        // Finder
+        // --- FINDER ---
         const finderData = { 
             barsik: ['barsik.jpg', 'barsik1.jpg', 'barsik_art.jpg'], 
             mark: ['mark.jpg', 'mark1.jpg', 'mark2.jpg'], 
@@ -839,6 +1374,7 @@
             }); 
         }
 
+        // --- ИНИЦИАЛИЗАЦИЯ ---
         window.onload = () => { 
             renderLaunchpad(); 
             renderDock(); 
